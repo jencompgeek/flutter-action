@@ -122,23 +122,6 @@ CHANNEL="${ARR_CHANNEL[0]:-}"
 [ -z "$PUB_CACHE_KEY" ] && PUB_CACHE_KEY="flutter-pub-:os:-:channel:-:version:-:arch:-:hash:"
 [ -z "$PUB_CACHE_PATH" ] && PUB_CACHE_PATH="default"
 
-# `PUB_CACHE` is what Dart and Flutter looks for in the environment, while
-# `PUB_CACHE_PATH` is passed in from the action.
-#
-# If `PUB_CACHE` is set already, then it should continue to be used. Otherwise, satisfy it
-# if the action requests a custom path, or set to the Dart default values depending
-# on the operating system.
-PUB_CACHE_PATH=$(expand_key "$PUB_CACHE_PATH")
-
-if [ -z "${PUB_CACHE:-}" ]; then
-	if [ "$PUB_CACHE_PATH" != "default" ]; then
-		PUB_CACHE="$PUB_CACHE_PATH"
-	elif [ "$OS_NAME" = "windows" ]; then
-		PUB_CACHE="$LOCALAPPDATA\\Pub\\Cache"
-	else
-		PUB_CACHE="$HOME/.pub-cache"
-	fi
-fi
 
 if [ "$TEST_MODE" = true ]; then
 	RELEASE_MANIFEST=$(cat "$(dirname -- "${BASH_SOURCE[0]}")/test/$MANIFEST_JSON_PATH")
@@ -179,6 +162,23 @@ expand_key() {
 CACHE_KEY=$(expand_key "$CACHE_KEY")
 PUB_CACHE_KEY=$(expand_key "$PUB_CACHE_KEY")
 CACHE_PATH=$(expand_key "$(transform_path "$CACHE_PATH")")
+# `PUB_CACHE` is what Dart and Flutter looks for in the environment, while
+# `PUB_CACHE_PATH` is passed in from the action.
+#
+# If `PUB_CACHE` is set already, then it should continue to be used. Otherwise, satisfy it
+# if the action requests a custom path, or set to the Dart default values depending
+# on the operating system.
+PUB_CACHE_PATH=$(expand_key "$PUB_CACHE_PATH")
+
+if [ -z "${PUB_CACHE:-}" ]; then
+	if [ "$PUB_CACHE_PATH" != "default" ]; then
+		PUB_CACHE="$PUB_CACHE_PATH"
+	elif [ "$OS_NAME" = "windows" ]; then
+		PUB_CACHE="$LOCALAPPDATA\\Pub\\Cache"
+	else
+		PUB_CACHE="$HOME/.pub-cache"
+	fi
+fi
 
 if [ "$PRINT_ONLY" = true ]; then
 	version_info=$(echo "$VERSION_MANIFEST" | jq -j '.channel,":",.version,":",.dart_sdk_arch // "x64"')
