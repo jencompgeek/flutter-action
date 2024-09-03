@@ -128,6 +128,8 @@ CHANNEL="${ARR_CHANNEL[0]:-}"
 # If `PUB_CACHE` is set already, then it should continue to be used. Otherwise, satisfy it
 # if the action requests a custom path, or set to the Dart default values depending
 # on the operating system.
+PUB_CACHE_PATH=$(expand_key "$PUB_CACHE_PATH")
+
 if [ -z "${PUB_CACHE:-}" ]; then
 	if [ "$PUB_CACHE_PATH" != "default" ]; then
 		PUB_CACHE="$PUB_CACHE_PATH"
